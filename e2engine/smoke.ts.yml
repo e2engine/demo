@@ -1,0 +1,8 @@
+kind: TestSuite
+version: 1.0.0
+name: smoke
+
+spec:
+  selectors:
+    tags:
+      - smoke

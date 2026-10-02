@@ -1,0 +1,50 @@
+kind: Test
+version: 1.0.0
+name: successful-payment
+description: payment succeeds and all downstream services are called as expected
+
+spec:
+  tags:
+    - smoke
+
+  request:
+    http:
+      method: POST
+      url: http://payment-api:8080/payments
+      headers:
+        Content-Type:
+          - application/json
+      body: '{"accountId":"acc-001","amount":12500,"currency":"EUR"}'
+
+  expect:
+    http:
+      status: 201
+      body: '{"paymentId":"payment-1","accountId":"acc-001","amount":12500,"currency":"EUR","status":"completed"}'
+    calls:
+      - service_id: fraud
+        count: 1
+        http:
+          method: POST
+          path: /check
+          body: '{"accountId":"acc-001","amount":12500,"currency":"EUR"}'
+
+      - service_id: account
+        count: 1
+        grpc:
+          service: account.v1.AccountService
+          method: Debit
+          message:
+            account_id: acc-001
+            amount: 12500
+            currency: EUR
+
+      - service_id: notification
+        count: 1
+        grpc:
+          service: notification.v1.NotificationService
+          method: Send
+          message:
+            account_id: acc-001
+            payment_id: payment-1
+            amount: 12500
+            currency: EUR

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package notification.v1;
+
+option go_package = "github.com/e2engine/demo/gen/notification/v1;notificationv1";
+
+service NotificationService {
+  rpc Send(SendRequest) returns (SendResponse);
+}
+
+message SendRequest {
+  string account_id = 1;
+  string payment_id = 2;
+  int64 amount = 3;
+  string currency = 4;
+}
+
+message SendResponse {}

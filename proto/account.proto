@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package account.v1;
+
+option go_package = "github.com/e2engine/demo/gen/account/v1;accountv1";
+
+service AccountService {
+  rpc Debit(DebitRequest) returns (DebitResponse);
+}
+
+message DebitRequest {
+  string account_id = 1;
+  int64 amount = 2;
+  string currency = 3;
+}
+
+message DebitResponse {
+  string transaction_id = 1;
+}

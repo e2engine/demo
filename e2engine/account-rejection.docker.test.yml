@@ -1,0 +1,45 @@
+kind: Test
+version: 1.0.0
+name: account-rejection
+description: payment is rejected when the account service reports insufficient funds
+
+spec:
+  tags:
+    - smoke
+
+  request:
+    http:
+      method: POST
+      url: http://payment-api:8080/payments
+      headers:
+        Content-Type:
+          - application/json
+      body: '{"accountId":"acc-002","amount":12500,"currency":"EUR"}'
+
+  expect:
+    http:
+      status: 422
+      body: '{"error":"payment rejected"}'
+    calls:
+      - service_id: fraud
+        count: 1
+        http:
+          method: POST
+          path: /check
+          body: '{"accountId":"acc-002","amount":12500,"currency":"EUR"}'
+
+      - service_id: account
+        count: 1
+        grpc:
+          service: account.v1.AccountService
+          method: Debit
+          message:
+            account_id: acc-002
+            amount: 12500
+            currency: EUR
+
+      - service_id: notification
+        count: 0
+        grpc:
+          service: notification.v1.NotificationService
+          method: Send

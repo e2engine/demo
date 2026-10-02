@@ -1,0 +1,14 @@
+/.idea/
+/.vscode/
+/bin/
+/build/
+/.coverage/
+/vendor/
+/dist/
+/tools/bin/
+/tools/vendor/
+
+.DS_Store
+
+/e2engine/config.yml
+/e2engine/e2engine.sqlite

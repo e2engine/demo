@@ -1,0 +1,41 @@
+kind: Test
+version: 1.0.0
+name: fraud-rejection
+description: payment is rejected when the fraud service rejects it
+
+spec:
+  tags:
+    - smoke
+
+  request:
+    http:
+      method: POST
+      url: http://127.0.0.1:8080/payments
+      headers:
+        Content-Type:
+          - application/json
+      body: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
+
+  expect:
+    http:
+      status: 422
+      body: '{"error":"payment rejected"}'
+    calls:
+      - service_id: fraud
+        count: 1
+        http:
+          method: POST
+          path: /check
+          body: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
+
+      - service_id: account
+        count: 0
+        grpc:
+          service: account.v1.AccountService
+          method: Debit
+
+      - service_id: notification
+        count: 0
+        grpc:
+          service: notification.v1.NotificationService
+          method: Send
