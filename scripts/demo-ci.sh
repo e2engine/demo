@@ -7,7 +7,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NETWORK="e2engine-network"
 DATA_DIR="${ROOT_DIR}/.e2engine"
 
-E2ENGINE_VERSION="${E2ENGINE_VERSION:-0.1.0}"
+E2ENGINE_VERSION="${E2ENGINE_VERSION:-0.1.1}"
 E2ENGINE_IMAGE="ghcr.io/e2engine/cli:${E2ENGINE_VERSION}"
 
 ACCOUNT_BIN="${ROOT_DIR}/account/bin/account"
