@@ -3,11 +3,14 @@ module github.com/e2engine/demo
 go 1.27
 
 require (
+	github.com/e2engine/instrumentation-go/grpc v0.1.1
+	github.com/e2engine/instrumentation-go/http v0.1.1
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 )
 
 require (
+	github.com/e2engine/instrumentation-go v0.1.1 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect

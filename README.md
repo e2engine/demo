@@ -2,7 +2,11 @@
 
 A small application demonstrating how E2Engine describes, executes, and verifies tests across real and mocked services.
 
-The demo combines HTTP and gRPC services, real and mocked dependencies, response verification, and downstream call expectations in one executable test environment.
+Part of [E2Engine](https://e2engine.dev), an open-source platform for declarative end-to-end testing.
+
+The demo combines HTTP and gRPC services, real and mocked dependencies, response verification, and downstream call expectations in a single test environment.
+
+Detailed description of the demo is available at [https://e2engine.dev/demo/](https://e2engine.dev/demo/).
 
 ## What this demonstrates
 
@@ -52,7 +56,7 @@ It demonstrates three service configurations:
 - a real gRPC Account service using an external protobuf definition;
 - a mocked gRPC Notification service whose protobuf contract is defined directly in the E2Engine environment.
 
-The Payment API communicates with the E2Engine service addresses rather than directly with its dependencies. E2Engine can therefore route and observe the interactions during each test execution.
+The Payment API communicates with the E2Engine service addresses rather than directly with its dependencies. E2Engine instrumentation propagates the test execution ID through HTTP and gRPC calls, allowing E2Engine to correlate observed dependency interactions with the test execution that caused them.
 
 ## Tests
 
@@ -94,7 +98,7 @@ The repository demonstrates two ways of running the same E2Engine environment, t
 - **CLI demo** — runs the application services locally and executes the tests using an installed E2Engine CLI.
 - **CI/Docker demo** — runs the application services in Docker and executes the tests using the published E2Engine container image.
 
-Both scenarios create the same environment, the same three tests, and the same `smoke` test suite. They differ only in how the application services and E2Engine are executed and addressed.
+Both scenarios create the same environment, three tests, and `smoke` test suite. They differ only in how the application services and E2Engine are executed and addressed.
 
 ### CLI demo
 
@@ -157,7 +161,7 @@ A successful run of either demo creates a test-suite execution containing all th
 ## Repository structure
 
 ```text
-e2engine-demo/
+demo/
 ├── account/            # real gRPC Account service
 ├── payment-api/        # HTTP system under test
 ├── proto/              # protobuf definitions used by the demo application
@@ -178,7 +182,8 @@ This repository is part of E2Engine.
 - [cli](https://github.com/e2engine/cli) — command-line interface
 - [tests](https://github.com/e2engine/tests) — end-to-end tests for E2Engine
 - [demo](https://github.com/e2engine/demo) — executable demonstration system and E2Engine usage examples
+- [instrumentation-go](https://github.com/e2engine/instrumentation-go) — Go instrumentation library for E2Engine
 
 ## License
 
-Licensed under the Apache License, Version 2.0.
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

@@ -8,6 +8,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	e2enginegrpc "github.com/e2engine/instrumentation-go/grpc"
+
 	accountv1 "github.com/e2engine/demo/gen/account/v1"
 	notificationv1 "github.com/e2engine/demo/gen/notification/v1"
 	paymentapi "github.com/e2engine/demo/payment-api"
@@ -25,6 +27,9 @@ func main() {
 	accountConn, err := grpc.NewClient(
 		accountAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(
+			e2enginegrpc.UnaryClientInterceptor(),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -34,6 +39,9 @@ func main() {
 	notificationConn, err := grpc.NewClient(
 		notificationAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(
+			e2enginegrpc.UnaryClientInterceptor(),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)

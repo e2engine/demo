@@ -9,8 +9,9 @@ import (
 	"sync"
 
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	e2enginehttp "github.com/e2engine/instrumentation-go/http"
 
 	accountv1 "github.com/e2engine/demo/gen/account/v1"
 	notificationv1 "github.com/e2engine/demo/gen/notification/v1"
@@ -60,8 +61,10 @@ func NewServer(
 	notification notificationv1.NotificationServiceClient,
 ) *Server {
 	return &Server{
-		fraudURL:     fraudURL,
-		httpClient:   http.DefaultClient,
+		fraudURL: fraudURL,
+		httpClient: &http.Client{
+			Transport: e2enginehttp.Transport(),
+		},
 		account:      account,
 		notification: notification,
 		payments:     make(map[string]Payment),
@@ -72,7 +75,7 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /payments", s.createPayment)
 
-	return mux
+	return e2enginehttp.Handler(mux)
 }
 
 func (s *Server) createPayment(w http.ResponseWriter, r *http.Request) {
@@ -108,18 +111,14 @@ func (s *Server) createPayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const testExecutionIDKey = "e2engine-test-execution-id"
-	callCtx := metadata.AppendToOutgoingContext(
+	_, err = s.account.Debit(
 		r.Context(),
-		testExecutionIDKey,
-		testExecutionID,
+		&accountv1.DebitRequest{
+			AccountId: req.AccountID,
+			Amount:    req.Amount,
+			Currency:  req.Currency,
+		},
 	)
-
-	_, err = s.account.Debit(callCtx, &accountv1.DebitRequest{
-		AccountId: req.AccountID,
-		Amount:    req.Amount,
-		Currency:  req.Currency,
-	})
 	if err != nil {
 		if status.Code(err) == codes.FailedPrecondition {
 			writeJSON(w, http.StatusUnprocessableEntity, errorResponse{
@@ -149,7 +148,7 @@ func (s *Server) createPayment(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 
 	_, _ = s.notification.Send(
-		callCtx,
+		r.Context(),
 		&notificationv1.SendRequest{
 			AccountId: req.AccountID,
 			PaymentId: paymentID,
@@ -184,9 +183,7 @@ func (s *Server) checkFraud(
 	if err != nil {
 		return false, err
 	}
-
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("E2Engine-Test-Execution-ID", testExecutionID)
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
