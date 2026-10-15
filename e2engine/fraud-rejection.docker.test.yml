@@ -14,19 +14,19 @@ spec:
       headers:
         Content-Type:
           - application/json
-      body: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
+      body_json: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
 
   expect:
     http:
-      status: 422
-      body: '{"error":"payment rejected"}'
+      status_code: 422
+      body_json: '{"error":"payment rejected"}'
     calls:
       - service_id: fraud
         count: 1
         http:
           method: POST
           path: /check
-          body: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
+          body_json: '{"accountId":"acc-003","amount":12500,"currency":"EUR"}'
 
       - service_id: account
         count: 0
